@@ -10,6 +10,7 @@
 #' @param intercept Boolean variable to determine if there is intercept (default is TRUE) or not.
 #' @param G Number of groups into which the variables are split. Can have more than one value.
 #' @param group.model Model used for the groups. Must be one of "glmnet" or "LS".
+#' @param lambdas The shinkrage parameters for the "glmnet" regularization. If NULL (default), optimal values are chosen.
 #' @param alpha Elastic net mixing parameter. Should be between 0 (default) and 1.
 #' @param nsample Number of sample splits for each value of G. If NULL, then all splits will be considered (unless there is overflow).
 #' @param use.all Boolean variable to determine if all variables must be used (default is TRUE).
@@ -62,7 +63,7 @@
 #'
 SPLIT <- function(x, y, intercept = TRUE,
                   G, use.all = TRUE,
-                  group.model=c("glmnet", "LS")[1], alpha = 0,
+                  group.model=c("glmnet", "LS")[1], lambdas=NULL, alpha = 0,
                   nsample = NULL, fix.partition = NULL, fix.split = NULL,
                   parallel=FALSE, cores=getOption('mc.cores', 2L)){
 
@@ -92,6 +93,13 @@ SPLIT <- function(x, y, intercept = TRUE,
       stop("alpha should be numeric")
     } else if (any(alpha < 0, alpha > 1)) {
       stop("alpha should be a numeric value between 0 and 1.")
+    }
+  }
+  if(!is.null(lambdas)){
+    if (!inherits(lambda, "numeric")) {
+      stop("lambdas should be numeric")
+    } else if (any(lambdas < 0, length(lambdas)!=G)) {
+      stop("lambdas should be a numeric non-negative vector of length G.")
     }
   }
   p <- ncol(x) # Storing the number of variables
@@ -189,7 +197,8 @@ SPLIT <- function(x, y, intercept = TRUE,
         # Generate the adaptive SPLIT coefficients for current
         core.splits.betas[, split.id] <- SPLIT_generate_coefficients(x=x, y=y, variables.split=current.split,
                                                                      intercept=intercept,
-                                                                     group.model=group.model, alpha=alpha)
+                                                                     group.model=group.model, 
+                                                                     lambdas=lambdas, alpha=alpha)
       }
       # Returning the splits.betas
       return(core.splits.betas)
@@ -211,7 +220,8 @@ SPLIT <- function(x, y, intercept = TRUE,
       # Generate the adaptive SPLIT coefficients for current 
       splits.betas[, split.id] <- SPLIT_generate_coefficients(x=x, y=y, variables.split=current.split, 
                                                              intercept=intercept, 
-                                                             group.model=group.model, alpha=alpha)
+                                                             group.model=group.model, 
+                                                             lambdas=lambdas, alpha=alpha)
     }
   }
   

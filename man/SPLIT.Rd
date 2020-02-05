@@ -11,6 +11,7 @@ SPLIT(
   G,
   use.all = TRUE,
   group.model = c("glmnet", "LS")[1],
+  lambdas = NULL,
   alpha = 0,
   nsample = NULL,
   fix.partition = NULL,
@@ -31,6 +32,8 @@ SPLIT(
 \item{use.all}{Boolean variable to determine if all variables must be used (default is TRUE).}
 
 \item{group.model}{Model used for the groups. Must be one of "glmnet" or "LS".}
+
+\item{lambdas}{The shinkrage parameters for the "glmnet" regularization. If NULL (default), optimal values are chosen.}
 
 \item{alpha}{Elastic net mixing parameter. Should be between 0 (default) and 1.}
 

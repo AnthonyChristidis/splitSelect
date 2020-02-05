@@ -100,7 +100,7 @@ cv.SPLIT <- function(x, y, intercept = TRUE,
   p <- ncol(x) # Storing the number of variables
   
   # Getting the full adaptive SPLIT estimate
-  out.split <- SPLIT(x, y, intercept=intercept,
+  out.split <- SPLIT(x=x, y=y, intercept=intercept,
                      G=G, use.all=use.all,
                      group.model=group.model, alpha=alpha,
                      nsample=nsample, fix.partition=fix.partition, fix.split=fix.split,

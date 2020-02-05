@@ -8,6 +8,7 @@
 #' @param variables.split A vector with the split of the variables into groups as values.
 #' @param intercept Boolean variable to determine if there is intercept (default is TRUE) or not.
 #' @param group.model Model used for the groups. Must be one of "glmnet" or "LS".
+#' @param lambdas The shinkrage parameters for the "glmnet" regularization. If NULL (default), optimal values are chosen.
 #' @param alpha Elastic net mixing parameter. Should be between 0 (default) and 1.
 #' 
 #' @return A vector with the regression coefficients for the split.
@@ -51,7 +52,8 @@
 #' 
 SPLIT_generate_coefficients <- function(x, y, variables.split, 
                                         intercept=TRUE, 
-                                        group.model=c("glmnet", "LS")[1], alpha=0){
+                                        group.model=c("glmnet", "LS")[1], 
+                                        lambdas=NULL, alpha=0){
   
   # Storing the number of samples
   n <- nrow(x)
@@ -97,19 +99,37 @@ SPLIT_generate_coefficients <- function(x, y, variables.split,
     # Centering the response
     y.c <- scale(y, center=TRUE, scale=FALSE)
     
-    # Computing the LS estimates for the variables
-    for(g in G){
-      if(sum(variables.split==g)==1){
-        x.g <- cbind(0, x[, variables.split==g, drop=FALSE])
-        beta.g <- glmnet::cv.glmnet(x.g, y.c, alpha=alpha, intercept=FALSE, grouped=FALSE)
-        beta.g <- as.numeric(coef(beta.g, s="lambda.min"))[-(1:2)]
-      } else{
-        x.g <- x[, variables.split==g, drop=FALSE]
-        beta.g <- glmnet::cv.glmnet(x.g, y.c, alpha=alpha, intercept=FALSE, grouped=FALSE)
-        beta.g <- as.numeric(coef(beta.g, s="lambda.min"))[-1]
+    if(is.null(lambdas)){
+
+      # Computing the glmnet estimates for the variables
+      for(g in G){
+        if(sum(variables.split==g)==1){
+          x.g <- cbind(0, x[, variables.split==g, drop=FALSE])
+          beta.g <- glmnet::cv.glmnet(x.g, y.c, alpha=alpha, intercept=FALSE, grouped=FALSE)
+          beta.g <- as.numeric(coef(beta.g, s="lambda.min"))[-(1:2)]
+        } else{
+          x.g <- x[, variables.split==g, drop=FALSE]
+          beta.g <- glmnet::cv.glmnet(x.g, y.c, alpha=alpha, intercept=FALSE, grouped=FALSE)
+          beta.g <- as.numeric(coef(beta.g, s="lambda.min"))[-1]
+        }
+        final.beta[variables.split==g] <- beta.g
       }
-      final.beta[variables.split==g] <- beta.g
+    } else{
+      # Computing the glmnet estimates for the variables
+      for(g in G){
+        if(sum(variables.split==g)==1){
+          x.g <- cbind(0, x[, variables.split==g, drop=FALSE])
+          beta.g <- glmnet::glmnet(x.g, y.c, alpha=alpha, lambda=lambdas[g], intercept=FALSE, grouped=FALSE)
+          beta.g <- as.numeric(coef(beta.g))[-(1:2)]
+        } else{
+          x.g <- x[, variables.split==g, drop=FALSE]
+          beta.g <- glmnet::glmnet(x.g, y.c, alpha=alpha, lambda=lambdas[g], intercept=FALSE, grouped=FALSE)
+          beta.g <- as.numeric(coef(beta.g))[-1]
+        }
+        final.beta[variables.split==g] <- beta.g
+      }
     }
+    
     # Adjusting for the number of groups
     final.beta <- final.beta/length(G)
     # Compute the intercept

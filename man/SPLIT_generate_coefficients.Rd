@@ -10,6 +10,7 @@ SPLIT_generate_coefficients(
   variables.split,
   intercept = TRUE,
   group.model = c("glmnet", "LS")[1],
+  lambdas = NULL,
   alpha = 0
 )
 }
@@ -23,6 +24,8 @@ SPLIT_generate_coefficients(
 \item{intercept}{Boolean variable to determine if there is intercept (default is TRUE) or not.}
 
 \item{group.model}{Model used for the groups. Must be one of "glmnet" or "LS".}
+
+\item{lambdas}{The shinkrage parameters for the "glmnet" regularization. If NULL (default), optimal values are chosen.}
 
 \item{alpha}{Elastic net mixing parameter. Should be between 0 (default) and 1.}
 }

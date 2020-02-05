@@ -6,3 +6,4 @@
 ^README-.*\.png$
 
 sandbox
+^\.travis\.yml$

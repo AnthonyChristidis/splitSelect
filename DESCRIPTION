@@ -2,7 +2,7 @@ Package: SPLIT
 Type: Package
 Title: Split Selection Regression Modeling for Low-Dimensional Data
 Version: 1.0.0
-Date: 2020-01-31
+Date: 2020-02-03
 Author: Anthony Christidis <anthony.christidis@stat.ubc.ca>,
     Stefan Van Aelst <stefan.vanaelst@kuleuven.be>,
     Ruben Zamar <ruben@stat.ubc.ca>
@@ -21,3 +21,5 @@ Imports: multicool,
     mvnfast,
     caret
 RoxygenNote: 7.0.2
+Suggests: 
+    testthat

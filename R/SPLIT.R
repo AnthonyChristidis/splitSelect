@@ -96,7 +96,7 @@ SPLIT <- function(x, y, intercept = TRUE,
     }
   }
   if(!is.null(lambdas)){
-    if (!inherits(lambda, "numeric")) {
+    if (!inherits(lambdas, "numeric")) {
       stop("lambdas should be numeric")
     } else if (any(lambdas < 0, length(lambdas)!=G)) {
       stop("lambdas should be a numeric non-negative vector of length G.")

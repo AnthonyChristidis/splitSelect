@@ -12,7 +12,7 @@ SPLIT(
   use.all = TRUE,
   group.model = c("glmnet", "LS")[1],
   lambdas = NULL,
-  alpha = 0,
+  alphas = 0,
   nsample = NULL,
   fix.partition = NULL,
   fix.split = NULL,
@@ -35,7 +35,7 @@ SPLIT(
 
 \item{lambdas}{The shinkrage parameters for the "glmnet" regularization. If NULL (default), optimal values are chosen.}
 
-\item{alpha}{Elastic net mixing parameter. Should be between 0 (default) and 1.}
+\item{alphas}{Elastic net mixing parameter. Should be between 0 (default) and 1.}
 
 \item{nsample}{Number of sample splits for each value of G. If NULL, then all splits will be considered (unless there is overflow).}
 
@@ -84,7 +84,7 @@ y.train <- 1 + x.train \%*\% beta + rnorm(n=n, mean=0, sd=sigma.epsilon)
 # split.out <- SPLIT(x.train, y.train, G=2, use.all=TRUE,
 #                    fix.partition=list(matrix(c(2,2), ncol=2, byrow=TRUE)), 
 #                    fix.split=NULL,
-#                    intercept=TRUE, group.model="glmnet", alpha=0)
+#                    intercept=TRUE, group.model="glmnet", alphas=0)
 
 }
 \seealso{

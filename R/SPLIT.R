@@ -11,7 +11,7 @@
 #' @param G Number of groups into which the variables are split. Can have more than one value.
 #' @param group.model Model used for the groups. Must be one of "glmnet" or "LS".
 #' @param lambdas The shinkrage parameters for the "glmnet" regularization. If NULL (default), optimal values are chosen.
-#' @param alpha Elastic net mixing parameter. Should be between 0 (default) and 1.
+#' @param alphas Elastic net mixing parameter. Should be between 0 (default) and 1.
 #' @param nsample Number of sample splits for each value of G. If NULL, then all splits will be considered (unless there is overflow).
 #' @param use.all Boolean variable to determine if all variables must be used (default is TRUE).
 #' @param fix.partition Optional list with G elements indicating the partitions (in each row) to be considered for the splits.
@@ -59,11 +59,11 @@
 #' # split.out <- SPLIT(x.train, y.train, G=2, use.all=TRUE,
 #' #                    fix.partition=list(matrix(c(2,2), ncol=2, byrow=TRUE)), 
 #' #                    fix.split=NULL,
-#' #                    intercept=TRUE, group.model="glmnet", alpha=0)
+#' #                    intercept=TRUE, group.model="glmnet", alphas=0)
 #'
 SPLIT <- function(x, y, intercept = TRUE,
                   G, use.all = TRUE,
-                  group.model=c("glmnet", "LS")[1], lambdas=NULL, alpha = 0,
+                  group.model=c("glmnet", "LS")[1], lambdas=NULL, alphas = 0,
                   nsample = NULL, fix.partition = NULL, fix.split = NULL,
                   parallel=FALSE, cores=getOption('mc.cores', 2L)){
 
@@ -88,17 +88,17 @@ SPLIT <- function(x, y, intercept = TRUE,
       stop("y and x should have the same number of rows.")
     }
   }
-  if(!is.null(alpha)){
-    if (!inherits(alpha, "numeric")) {
-      stop("alpha should be numeric")
-    } else if (any(alpha < 0, alpha > 1)) {
-      stop("alpha should be a numeric value between 0 and 1.")
+  if(!is.null(alphas)){
+    if (!inherits(alphas, "numeric")) {
+      stop("alphas should be numeric")
+    } else if (any(any(alphas < 0), any(alphas > 1))) {
+      stop("alphas should be a numeric value between 0 and 1.")
     }
   }
   if(!is.null(lambdas)){
     if (!inherits(lambdas, "numeric")) {
       stop("lambdas should be numeric")
-    } else if (any(lambdas < 0, length(lambdas)!=G)) {
+    } else if (any(lambdas < 0)) {
       stop("lambdas should be a numeric non-negative vector of length G.")
     }
   }
@@ -198,7 +198,7 @@ SPLIT <- function(x, y, intercept = TRUE,
         core.splits.betas[, split.id] <- SPLIT_generate_coefficients(x=x, y=y, variables.split=current.split,
                                                                      intercept=intercept,
                                                                      group.model=group.model, 
-                                                                     lambdas=lambdas, alpha=alpha)
+                                                                     lambdas=lambdas, alphas=alphas)
       }
       # Returning the splits.betas
       return(core.splits.betas)
@@ -221,7 +221,7 @@ SPLIT <- function(x, y, intercept = TRUE,
       splits.betas[, split.id] <- SPLIT_generate_coefficients(x=x, y=y, variables.split=current.split, 
                                                              intercept=intercept, 
                                                              group.model=group.model, 
-                                                             lambdas=lambdas, alpha=alpha)
+                                                             lambdas=lambdas, alphas=alphas)
     }
   }
   

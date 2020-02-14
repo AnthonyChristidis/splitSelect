@@ -11,7 +11,7 @@ cv.SPLIT(
   G,
   use.all = TRUE,
   group.model = c("glmnet", "LS")[1],
-  alpha = 0,
+  alphas = 0,
   nsample = NULL,
   fix.partition = NULL,
   fix.split = NULL,
@@ -33,7 +33,7 @@ cv.SPLIT(
 
 \item{group.model}{Model used for the groups. Must be one of "glmnet" or "LS".}
 
-\item{alpha}{Elastic net mixing parameter. Should be between 0 (default) and 1.}
+\item{alphas}{Elastic net mixing parameter. Should be between 0 (default) and 1.}
 
 \item{nsample}{Number of sample splits for each value of G. If NULL, then all splits will be considered (unless there is overflow).}
 
@@ -85,7 +85,7 @@ y.train <- 1 + x.train \%*\% beta + rnorm(n=n, mean=0, sd=sigma.epsilon)
 #                      fix.partition=list(matrix(c(2,2), 
 #                                                ncol=2, byrow=TRUE)), 
 #                      fix.split=NULL,
-#                      intercept=TRUE, group.model="glmnet", alpha=0, nfolds=10)
+#                      intercept=TRUE, group.model="glmnet", alphas=0, nfolds=10)
 
 }
 \author{

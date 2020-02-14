@@ -45,7 +45,7 @@
 #' #                      fix.partition=list(matrix(c(2,2), 
 #' #                                                ncol=2, byrow=TRUE)), 
 #' #                      fix.split=NULL,
-#' #                      intercept=TRUE, group.model="glmnet", alpha=0, nfolds=10)
+#' #                      intercept=TRUE, group.model="glmnet", alphas=0, nfolds=10)
 #' # coef(split.out)
 #' 
 #' @seealso \code{\link{SPLIT}}

@@ -48,7 +48,7 @@
 #' #                       fix.partition=list(matrix(c(2,2), 
 #' #                                                 ncol=2, byrow=TRUE)), 
 #' #                       fix.split=NULL,
-#' #                       intercept=TRUE, group.model="glmnet", alpha=0)
+#' #                       intercept=TRUE, group.model="glmnet", alphas=0)
 #' # predict(split.out, newx=x.test)
 #' 
 #' @seealso \code{\link{cv.SPLIT}}

@@ -9,7 +9,7 @@
 #' @param y Response vector.
 #' @param intercept Boolean variable to determine if there is intercept (default is TRUE) or not.
 #' @param G Number of groups into which the variables are split. Can have more than one value.
-#' @param alpha Elastic net mixing parameter. Should be between 0 (default) and 1.
+#' @param alphas Elastic net mixing parameter. Should be between 0 (default) and 1.
 #' @param group.model Model used for the groups. Must be one of "glmnet" or "LS".
 #' @param nsample Number of sample splits for each value of G. If NULL, then all splits will be considered (unless there is overflow).
 #' @param use.all Boolean variable to determine if all variables must be used (default is TRUE).
@@ -57,11 +57,11 @@
 #' #                      fix.partition=list(matrix(c(2,2), 
 #' #                                                ncol=2, byrow=TRUE)), 
 #' #                      fix.split=NULL,
-#' #                      intercept=TRUE, group.model="glmnet", alpha=0, nfolds=10)
+#' #                      intercept=TRUE, group.model="glmnet", alphas=0, nfolds=10)
 #'
 cv.SPLIT <- function(x, y, intercept = TRUE,
                      G, use.all = TRUE,
-                     group.model=c("glmnet", "LS")[1], alpha = 0,
+                     group.model=c("glmnet", "LS")[1], alphas = 0,
                      nsample = NULL, fix.partition = NULL, fix.split = NULL,
                      nfolds = 10,
                      parallel=FALSE, cores=getOption('mc.cores', 2L)){
@@ -87,11 +87,11 @@ cv.SPLIT <- function(x, y, intercept = TRUE,
       stop("y and x should have the same number of rows.")
     }
   }
-  if(!is.null(alpha)){
-    if (!inherits(alpha, "numeric")) {
-      stop("alpha should be numeric")
-    } else if (any(alpha < 0, alpha > 1)) {
-      stop("alpha should be a numeric value between 0 and 1.")
+  if(!is.null(alphas)){
+    if (!inherits(alphas, "numeric")) {
+      stop("alphas should be numeric")
+    } else if (any(any(alphas < 0), any(alphas > 1))) {
+      stop("alphas should be a numeric value between 0 and 1.")
     }
   }
   if(!(group.model %in% c("glmnet", "LS"))){
@@ -102,7 +102,7 @@ cv.SPLIT <- function(x, y, intercept = TRUE,
   # Getting the full adaptive SPLIT estimate
   out.split <- SPLIT(x=x, y=y, intercept=intercept,
                      G=G, use.all=use.all,
-                     group.model=group.model, alpha=alpha,
+                     group.model=group.model, alphas=alphas,
                      nsample=nsample, fix.partition=fix.partition, fix.split=fix.split,
                      parallel=parallel, cores=cores)
   
@@ -140,7 +140,7 @@ cv.SPLIT <- function(x, y, intercept = TRUE,
           x.train <- x[-folds[[fold.id]],]; x.test <- x[folds[[fold.id]],, drop=FALSE]
           y.train <- y[-folds[[fold.id]]]; y.test <- y[folds[[fold.id]]]
           fold.split <- SPLIT(x=x.train, y=y.train, intercept=intercept,
-                              G=G, group.model=group.model, alpha = alpha,
+                              G=G, group.model=group.model, alphas = alphas,
                               fix.split = matrix(out.split$splits[core.splits[split.id],], nrow=1))
           if(intercept)
             split.pred <- cbind(rep(1, length(y.test)), x.test) %*% fold.split$betas else
@@ -169,7 +169,7 @@ cv.SPLIT <- function(x, y, intercept = TRUE,
         x.train <- x[-folds[[fold.id]],]; x.test <- x[folds[[fold.id]],]
         y.train <- y[-folds[[fold.id]]]; y.test <- y[folds[[fold.id]]]
         fold.split <- SPLIT(x=x.train, y=y.train, intercept=intercept,
-                            G=G, group.model=group.model, alpha = alpha,
+                            G=G, group.model=group.model, alphas = alphas,
                             fix.split = matrix(out.split$splits[split.id,], nrow=1))
         if(intercept)
           split.pred <- cbind(rep(1, length(y.test)), x.test) %*% fold.split$betas else

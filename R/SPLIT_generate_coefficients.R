@@ -69,10 +69,6 @@ SPLIT_generate_coefficients <- function(x, y, variables.split,
   n <- nrow(x)
   # Storing the number of variables
   p <- ncol(x)
-  
-  # Centering and scaling the data
-  x.s <- scale(x, center=TRUE, scale=TRUE)
-  y.s <- scale(y, center=TRUE, scale=TRUE)
 
   # Storage of the beta coefficients
   final.beta <- numeric(p)

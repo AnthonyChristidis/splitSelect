@@ -195,7 +195,7 @@ SPLIT <- function(x, y, intercept = TRUE,
         # Store the current split
         current.split <- final.splits[core.splits[split.id],]
         # Generate the adaptive SPLIT coefficients for current
-        core.splits.betas[, split.id] <- SPLIT_generate_coefficients(x=x, y=y, variables.split=current.split,
+        core.splits.betas[, split.id] <- SPLIT_generate_coefficients(x=x, y=y, variables.split=as.vector(current.split),
                                                                      intercept=intercept,
                                                                      group.model=group.model, 
                                                                      lambdas=lambdas, alphas=alphas)
@@ -218,10 +218,10 @@ SPLIT <- function(x, y, intercept = TRUE,
       # Store the current split
       current.split <- final.splits[split.id,,drop=FALSE]
       # Generate the adaptive SPLIT coefficients for current 
-      splits.betas[, split.id] <- SPLIT_generate_coefficients(x=x, y=y, variables.split=current.split, 
-                                                             intercept=intercept, 
-                                                             group.model=group.model, 
-                                                             lambdas=lambdas, alphas=alphas)
+      splits.betas[, split.id] <- SPLIT_generate_coefficients(x=x, y=y, variables.split=as.vector(current.split), 
+                                                              intercept=intercept, 
+                                                              group.model=group.model, 
+                                                              lambdas=lambdas, alphas=alphas)
     }
   }
   

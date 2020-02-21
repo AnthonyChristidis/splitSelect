@@ -79,9 +79,9 @@ SPLIT_generate_coefficients <- function(x, y, variables.split,
   if(group.model=="LS"){
     
     # Centering and scaling the design matrix
-    x.c <- scale(x, center=TRUE, scale=TRUE)
+    x.c <- scale(x, center=TRUE, scale=FALSE)
     # Scaling the response
-    y.c <- scale(y, center=TRUE, scale=TRUE)
+    y.c <- scale(y, center=TRUE, scale=FALSE)
     
     for(g in G){
       

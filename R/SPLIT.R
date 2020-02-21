@@ -105,7 +105,7 @@ SPLIT <- function(x, y, intercept = TRUE,
   p <- ncol(x) # Storing the number of variables
   if(any(c(!is.numeric(p), length(p)!=1, p<1, !(p%%1==0))))
     stop("p should be a positive interger.")
-  if(any(c(!is.numeric(G), any(G<1), !any(G%%1==0), any(G>=p))))
+  if(any(c(!is.numeric(G), any(G<1), !any(G%%1==0), any(G>p))))
     stop("G should be a positive interger less or equal to p.")
   if(!is.null(nsample)){
     if(any(c(!is.numeric(nsample), length(nsample)!=1, nsample<1, !(nsample%%1==0))))

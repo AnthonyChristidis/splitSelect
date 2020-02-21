@@ -7,6 +7,7 @@
 #' @param G Number of groups into which the variables are split.
 #' @param use.all Boolean variable to determine if all variables must be used (default is TRUE).
 #' @param fix.partition Optional matrix with G columns (or list if more than one value of G) indicating the partitions (in each row) to be considered for the splits.
+#' @param verbose Boolean variable to determine if console output for cross-validation progress is printed (default is TRUE).
 #' 
 #' @return A matrix with the different splits of the variables in the groups.
 #' 
@@ -24,7 +25,8 @@
 #' split.3groups
 #' 
 generate_splits <- function(p, G, use.all = TRUE,
-                            fix.partition = NULL){
+                            fix.partition = NULL,
+                            verbose=TRUE){
   
   # Case where G has more than one element
   if(length(G)>1){
@@ -57,7 +59,7 @@ generate_splits <- function(p, G, use.all = TRUE,
   total.splits <- nsplit(p, G, use.all = use.all,
                          fix.partition = fix.partition)
   if(total.splits > 1e5)
-    stop("There are over 100,000 total number of possible splits. The number of splits is over the limit.") else
+    stop("There are over 100,000 total number of possible splits. The number of splits is over the limit.") else if(verbose)
       cat("Generating", total.splits, "total splits...\n")
   
   # Case where there is only one group (G=1)

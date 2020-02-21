@@ -8,6 +8,7 @@
 #' @param G Number of groups into which the variables are split.
 #' @param use.all Boolean variable to determine if all variables must be used (default is TRUE).
 #' @param fix.partition Optional matrix with G columns indicating the partitions (in each row) to be considered for the splits.
+#' @param verbose Boolean variable to determine if console output for cross-validation progress is printed (default is TRUE).
 #' 
 #' @return A matrix or list with the number of possible objects in each group using splits.
 #' 
@@ -23,7 +24,8 @@
 #' random.splits.fixed <- rsplit(100, 6, 3, fix.partition=matrix(c(2,2,2), nrow=1))
 #' 
 rsplit <- function(n, p, G, use.all = TRUE,
-                   fix.partition = NULL){
+                   fix.partition = NULL,
+                   verbose=TRUE){
   
   # Case where G has more than one element
   if(length(G)>1){
@@ -58,7 +60,8 @@ rsplit <- function(n, p, G, use.all = TRUE,
   if(G==1){
     
     # Case where there is only one group
-    cat("Only a single split is possible for G=1, and is the only value returned.\n")
+    if(verbose)
+      cat("Only a single split is possible for G=1, and is the only value returned.\n")
     return(matrix(rep(1,p), ncol=p))
     
     # Create matrix to store splits

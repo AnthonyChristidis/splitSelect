@@ -18,7 +18,7 @@
 #' @param fix.split Optional matrix with p columns indicating the groups (in each row) to be considered for the splits.
 #' @param parallel Boolean variable to determine if parallelization of the function. Default is FALSE.
 #' @param cores Number of cores for the parallelization for the function.
-#' 
+#' @param verbose Boolean variable to determine if console output for cross-validation progress is printed (default is TRUE).
 #' 
 #' @return An object of class SPLIT.
 #' 
@@ -65,7 +65,8 @@ SPLIT <- function(x, y, intercept = TRUE,
                   G, use.all = TRUE,
                   group.model=c("glmnet", "LS")[1], lambdas=NULL, alphas = 0,
                   nsample = NULL, fix.partition = NULL, fix.split = NULL,
-                  parallel=FALSE, cores=getOption('mc.cores', 2L)){
+                  parallel=FALSE, cores=getOption('mc.cores', 2L),
+                  verbose=TRUE){
 
   # Check input data
   if (all(!inherits(x, "matrix"), !inherits(x, "data.frame"))) {
@@ -135,7 +136,8 @@ SPLIT <- function(x, y, intercept = TRUE,
           total.splits <- total.splits + nsplit(p=p, G=G[G.ind], use.all=use.all, fix.partition=fix.partition[[G.ind]])
 
     if(total.splits > 1e5){
-      cat("There are over", 1e5, "possible splits. Random splits will be considered instead.\n")
+      if(verbose)
+        cat("There are over", 1e5, "possible splits. Random splits will be considered instead.\n")
       splits.candidates <- "Sample"
       n <- 1e3
     }
@@ -148,12 +150,12 @@ SPLIT <- function(x, y, intercept = TRUE,
       for(G.ind in 1:length(G)){
         if(is.null(fix.partition)){
           if(is.null(nsample))
-            final.splits <- rbind(final.splits, generate_splits(p=p, G=G[G.ind], use.all=use.all, fix.partition=fix.partition)) else
-              final.splits <- rbind(final.splits, rsplit(n=nsample, p=p, G=G[G.ind], use.all=use.all, fix.partition=fix.partition))
+            final.splits <- rbind(final.splits, generate_splits(p=p, G=G[G.ind], use.all=use.all, fix.partition=fix.partition, verbose=verbose)) else
+              final.splits <- rbind(final.splits, rsplit(n=nsample, p=p, G=G[G.ind], use.all=use.all, fix.partition=fix.partition, verbose=verbose))
         } else{
           if(is.null(nsample))
-            final.splits <- rbind(final.splits, generate_splits(p=p, G=G[G.ind], use.all=use.all, fix.partition=fix.partition[[G.ind]])) else
-              final.splits <- rbind(final.splits, rsplit(n=nsample, p=p, G=G[G.ind], use.all=use.all, fix.partition=fix.partition[[G.ind]]))
+            final.splits <- rbind(final.splits, generate_splits(p=p, G=G[G.ind], use.all=use.all, fix.partition=fix.partition[[G.ind]], verbose=verbose)) else
+              final.splits <- rbind(final.splits, rsplit(n=nsample, p=p, G=G[G.ind], use.all=use.all, fix.partition=fix.partition[[G.ind]], verbose=verbose))
         }
       }
     }

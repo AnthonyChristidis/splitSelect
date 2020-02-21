@@ -17,7 +17,8 @@ SPLIT(
   fix.partition = NULL,
   fix.split = NULL,
   parallel = FALSE,
-  cores = getOption("mc.cores", 2L)
+  cores = getOption("mc.cores", 2L),
+  verbose = TRUE
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ SPLIT(
 \item{parallel}{Boolean variable to determine if parallelization of the function. Default is FALSE.}
 
 \item{cores}{Number of cores for the parallelization for the function.}
+
+\item{verbose}{Boolean variable to determine if console output for cross-validation progress is printed (default is TRUE).}
 }
 \value{
 An object of class SPLIT.

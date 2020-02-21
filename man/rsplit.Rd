@@ -4,7 +4,7 @@
 \alias{rsplit}
 \title{Generate Samples of Splits Possibilities}
 \usage{
-rsplit(n, p, G, use.all = TRUE, fix.partition = NULL)
+rsplit(n, p, G, use.all = TRUE, fix.partition = NULL, verbose = TRUE)
 }
 \arguments{
 \item{n}{Number of sample splits.}
@@ -16,6 +16,8 @@ rsplit(n, p, G, use.all = TRUE, fix.partition = NULL)
 \item{use.all}{Boolean variable to determine if all variables must be used (default is TRUE).}
 
 \item{fix.partition}{Optional matrix with G columns indicating the partitions (in each row) to be considered for the splits.}
+
+\item{verbose}{Boolean variable to determine if console output for cross-validation progress is printed (default is TRUE).}
 }
 \value{
 A matrix or list with the number of possible objects in each group using splits.

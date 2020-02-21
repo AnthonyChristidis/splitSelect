@@ -4,7 +4,7 @@
 \alias{generate_splits}
 \title{Generate Splits Possibilities}
 \usage{
-generate_splits(p, G, use.all = TRUE, fix.partition = NULL)
+generate_splits(p, G, use.all = TRUE, fix.partition = NULL, verbose = TRUE)
 }
 \arguments{
 \item{p}{Number of variables or objects to split.}
@@ -14,6 +14,8 @@ generate_splits(p, G, use.all = TRUE, fix.partition = NULL)
 \item{use.all}{Boolean variable to determine if all variables must be used (default is TRUE).}
 
 \item{fix.partition}{Optional matrix with G columns (or list if more than one value of G) indicating the partitions (in each row) to be considered for the splits.}
+
+\item{verbose}{Boolean variable to determine if console output for cross-validation progress is printed (default is TRUE).}
 }
 \value{
 A matrix with the different splits of the variables in the groups.

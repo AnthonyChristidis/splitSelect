@@ -49,10 +49,12 @@ x.test <- mvnfast::rmvn(n.test, mu=rep(0,p), sigma=Sigma.rho)
 y.test <- 1 + x.test \%*\% beta + rnorm(n.test, sd=sigma.epsilon)
 
 # Generating the coefficients for a fixed split
-# split.out <- SPLIT(x.train, y.train, G=2, use.all=TRUE,
-#                    fix.partition=list(matrix(c(2,2), ncol=2, byrow=TRUE)), fix.split=NULL,
-#                    intercept=TRUE, group.model="glmnet", alphas=0)
-# predict(split.out, newx=x.test)
+\donttest{
+split.out <- SPLIT(x.train, y.train, G=2, use.all=TRUE,
+                   fix.partition=list(matrix(c(2,2), ncol=2, byrow=TRUE)), fix.split=NULL,
+                   intercept=TRUE, group.model="glmnet", alphas=0)
+predict(split.out, newx=x.test)
+}
 
 }
 \seealso{

@@ -56,10 +56,13 @@
 #' y.train <- 1 + x.train %*% beta + rnorm(n=n, mean=0, sd=sigma.epsilon)
 #' 
 #' # Generating the coefficients for a fixed split
-#' # split.out <- SPLIT(x.train, y.train, G=2, use.all=TRUE,
-#' #                    fix.partition=list(matrix(c(2,2), ncol=2, byrow=TRUE)), 
-#' #                    fix.split=NULL,
-#' #                    intercept=TRUE, group.model="glmnet", alphas=0)
+#' \donttest{
+#' split.out <- SPLIT(x.train, y.train, G=2, use.all=TRUE,
+#'                    fix.partition=list(matrix(c(2,2), 
+#'                                              ncol=2, byrow=TRUE)), 
+#'                    fix.split=NULL,
+#'                    intercept=TRUE, group.model="glmnet", alphas=0)
+#' }
 #'
 SPLIT <- function(x, y, intercept = TRUE,
                   G, use.all = TRUE,

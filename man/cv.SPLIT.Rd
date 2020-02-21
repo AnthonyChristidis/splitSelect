@@ -81,11 +81,13 @@ x.train <- mvnfast::rmvn(30, mu=rep(0,p), sigma=Sigma.r)
 y.train <- 1 + x.train \%*\% beta + rnorm(n=n, mean=0, sd=sigma.epsilon)
 
 # Generating the coefficients for a fixed split
-# split.out <- cv.SPLIT(x.train, y.train, G=2, use.all=TRUE,
-#                      fix.partition=list(matrix(c(2,2), 
-#                                                ncol=2, byrow=TRUE)), 
-#                      fix.split=NULL,
-#                      intercept=TRUE, group.model="glmnet", alphas=0, nfolds=10)
+\donttest{
+split.out <- cv.SPLIT(x.train, y.train, G=2, use.all=TRUE,
+                      fix.partition=list(matrix(c(2,2), 
+                                                ncol=2, byrow=TRUE)), 
+                      fix.split=NULL,
+                      intercept=TRUE, group.model="glmnet", alphas=0, nfolds=10)
+}
 
 }
 \author{

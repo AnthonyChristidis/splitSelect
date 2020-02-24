@@ -192,7 +192,7 @@ SPLIT <- function(x, y, intercept = TRUE,
       core.splits <- parallel.id[[subset.ind]]
       if(intercept)
         core.splits.betas <- matrix(nrow=p+1, ncol=length(core.splits)) else
-          core.splits.betas <- matrix(nrow=p+1, ncol=length(core.splits))
+          core.splits.betas <- matrix(nrow=p, ncol=length(core.splits))
 
       # Generating the adaptive SPLIT coefficients
       for(split.id in 1:length(core.splits)){

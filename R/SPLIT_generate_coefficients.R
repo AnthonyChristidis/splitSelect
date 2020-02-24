@@ -76,46 +76,52 @@ SPLIT_generate_coefficients <- function(x, y, variables.split,
   # Storing the number of groups
   G <- unique(variables.split)
   
+  # Centering the design matrix
+  x.c <- scale(x, center=TRUE, scale=FALSE)
+  # Centering the response
+  y.c <- scale(y, center=TRUE, scale=FALSE)
+  
   if(group.model=="LS"){
     
-    # Centering and scaling the design matrix
-    x.c <- scale(x, center=TRUE, scale=FALSE)
-    # Scaling the response
-    y.c <- scale(y, center=TRUE, scale=FALSE)
-    
-    for(g in G){
-      
-      x.g <- x.c[,variables.split==g, drop=FALSE]
-      beta.g <- solve(t(x.g)%*%x.g)%*%t(x.g)%*%y.c
-      final.beta[variables.split==g] <- beta.g
-    }
-    # Adjusting for the number of groups
-    final.beta <- final.beta/length(G)
-    # Compute the intercept
     if(intercept){
-      split.intercept <- as.numeric(mean(y) - apply(x, 2, mean)%*%final.beta)
+    
+      for(g in G){
+        x.g <- x.c[,variables.split==g, drop=FALSE]
+        beta.g <- solve(t(x.g)%*%x.g)%*%t(x.g)%*%y.c
+        final.beta[variables.split==g] <- beta.g
+      }
+      # Adjusting for the number of groups
+      final.beta <- final.beta/length(G)
+      # Computing the intercept
+      split.intercept <- as.numeric(mean(y)) - apply(x, 2, mean)%*%final.beta
       final.beta <- c(split.intercept, final.beta)
+    } else{
+      
+      for(g in G){
+        x.g <- x[,variables.split==g, drop=FALSE]
+        beta.g <- solve(t(x.g)%*%x.g)%*%t(x.g)%*%y
+        final.beta[variables.split==g] <- beta.g
+      }
+      # Adjusting for the number of groups
+      final.beta <- final.beta/length(G)
     }
     
     # Returning the adaptive SPLIT estimate
     return(final.beta)
     
   } else if(group.model=="glmnet"){
-    
-    # Centering the response
-    y.c <- scale(y, center=TRUE, scale=FALSE)
-    
+
     if(is.null(lambdas)){
 
       # Computing the glmnet estimates for the variables
       for(g in G){
         if(sum(variables.split==g)==1){
           x.g <- cbind(0, x[, variables.split==g, drop=FALSE])
-          beta.g <- glmnet::cv.glmnet(x.g, y.c, alpha=alphas[g], intercept=FALSE, grouped=FALSE)
+          beta.g <- glmnet::cv.glmnet(x.g, y, alpha=alphas[g], intercept=intercept, grouped=FALSE)
           beta.g <- as.numeric(coef(beta.g, s="lambda.min"))[-(1:2)]
         } else{
           x.g <- x[, variables.split==g, drop=FALSE]
-          beta.g <- glmnet::cv.glmnet(x.g, y.c, alpha=alphas[g], intercept=FALSE, grouped=FALSE)
+          beta.g <- glmnet::cv.glmnet(x.g, y, alpha=alphas[g], intercept=intercept, grouped=FALSE)
           beta.g <- as.numeric(coef(beta.g, s="lambda.min"))[-1]
         }
         final.beta[variables.split==g] <- beta.g
@@ -125,11 +131,11 @@ SPLIT_generate_coefficients <- function(x, y, variables.split,
       for(g in G){
         if(sum(variables.split==g)==1){
           x.g <- cbind(0, x[, variables.split==g, drop=FALSE])
-          beta.g <- glmnet::glmnet(x.g, y.c, alpha=alphas[g], lambda=lambdas[g], intercept=FALSE, grouped=FALSE)
+          beta.g <- glmnet::glmnet(x.g, y, alpha=alphas[g], lambda=lambdas[g], intercept=intercept, grouped=FALSE)
           beta.g <- as.numeric(coef(beta.g))[-(1:2)]
         } else{
           x.g <- x[, variables.split==g, drop=FALSE]
-          beta.g <- glmnet::glmnet(x.g, y.c, alpha=alphas[g], lambda=lambdas[g], intercept=FALSE, grouped=FALSE)
+          beta.g <- glmnet::glmnet(x.g, y.c, alpha=alphas[g], lambda=lambdas[g], intercept=intercept, grouped=FALSE)
           beta.g <- as.numeric(coef(beta.g))[-1]
         }
         final.beta[variables.split==g] <- beta.g

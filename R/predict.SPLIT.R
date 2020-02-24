@@ -68,15 +68,15 @@ predict.SPLIT <- function(object, newx, ...){
   
   # Removing the intercepts
   if(!is.null(object$intercepts))
-    object$betas <- object$betas[-1,]
+    object$betas <- object$betas[-1,, drop=FALSE]
   
   # Computing the predictions
   for(newx.id in 1:nrow(newx)){
     for(split.id in 1:nrow(object$splits)){
-      predictions[newx.id, split.id] <- newx[newx.id,] %*% object$betas[,split.id]
+      predictions[newx.id, split.id] <- newx[newx.id,] %*% object$betas[,split.id, drop=FALSE]
     }
   }
-  
+
   # Adding the intercepts
   if(!is.null(object$intercepts))
     for(split.id in 1:nrow(object$splits))

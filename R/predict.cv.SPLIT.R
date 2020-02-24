@@ -77,7 +77,7 @@ predict.cv.SPLIT <- function(object, newx, optimal.only=TRUE, ...){
     
     # Computing the predictions
     for(newx.id in 1:nrow(newx)){
-      predictions[newx.id] <- newx[newx.id,] %*% object$betas[,object$optimal.split]
+      predictions[newx.id] <- newx[newx.id,] %*% object$betas[,object$optimal.split, drop=FALSE]
     }
     
     # Adding the intercepts
@@ -95,7 +95,7 @@ predict.cv.SPLIT <- function(object, newx, optimal.only=TRUE, ...){
     # Computing the predictions
     for(newx.id in 1:nrow(newx)){
       for(split.id in 1:nrow(object$splits)){
-        predictions[newx.id, split.id] <- newx[newx.id,] %*% object$betas[,split.id]
+        predictions[newx.id, split.id] <- newx[newx.id,] %*% object$betas[, split.id, drop=FALSE]
       }
     }
     

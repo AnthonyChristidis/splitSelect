@@ -51,9 +51,9 @@
 #' splitSelect_coef(x.train, y.train, variables.split=matrix(c(1,2,1,2,1,2), nrow=1))
 #' 
 splitSelect_coef <- function(x, y, variables.split, 
-                                        intercept=TRUE, 
-                                        group.model=c("glmnet", "LS")[1], 
-                                        lambdas=NULL, alphas=0){
+                             intercept=TRUE, 
+                             group.model=c("glmnet", "LS")[1], 
+                             lambdas=NULL, alphas=0){
   
   # Check input for lambdas and alphas
   if(!is.null(lambdas)){

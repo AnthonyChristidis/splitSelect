@@ -1,13 +1,13 @@
 #' 
-#' @title Coefficients for SPLIT object
+#' @title Coefficients for splitSelect object
 #'
-#' @description \code{coef.cv.SPLIT} returns the coefficients for a cv.SPLIT for new data.
+#' @description \code{coef.cv.splitSelect} returns the coefficients for a cv.splitSelect for new data.
 #' 
-#' @param object An object of class cv.SPLIT.
+#' @param object An object of class cv.splitSelect.
 #' @param optimal.only A boolean variable (TRUE default) to indicate if only the coefficient of the optimal split are returned.
 #' @param ... Additional arguments for compatibility.
 #' 
-#' @return A matrix with the coefficients of the \code{cv.SPLIT} object.
+#' @return A matrix with the coefficients of the \code{cv.splitSelect} object.
 #' 
 #' @export
 #' 
@@ -42,21 +42,21 @@
 #' 
 #' # Generating the coefficients for a fixed split
 #' \donttest{
-#' split.out <- cv.SPLIT(x.train, y.train, G=2, use.all=TRUE,
-#'                       fix.partition=list(matrix(c(2,2), 
-#'                                                 ncol=2, byrow=TRUE)), 
-#'                       fix.split=NULL,
-#'                       intercept=TRUE, group.model="glmnet", alphas=0, nfolds=10)
+#' split.out <- cv.splitSelect(x.train, y.train, G=2, use.all=TRUE,
+#'                             fix.partition=list(matrix(c(2,2), 
+#'                                                ncol=2, byrow=TRUE)), 
+#'                             fix.split=NULL,
+#'                             intercept=TRUE, group.model="glmnet", alphas=0, nfolds=10)
 #' coef(split.out)
 #' }
 #' 
-#' @seealso \code{\link{SPLIT}}
+#' @seealso \code{\link{splitSelect}}
 #' 
-coef.cv.SPLIT <- function(object, optimal.only = TRUE, ...){
+coef.cv.splitSelect <- function(object, optimal.only = TRUE, ...){
   
   # Check input data
-  if(!any(class(object) %in% "cv.SPLIT"))
-    stop("The object should be of class \"cv.SPLIT\".")
+  if(!any(class(object) %in% "cv.splitSelect"))
+    stop("The object should be of class \"cv.splitSelect\".")
   
   # Returning the coefficients
   if(optimal.only)

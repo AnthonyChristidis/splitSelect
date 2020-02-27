@@ -1,26 +1,26 @@
 
-[![Build Status](https://travis-ci.org/AnthonyChristidis/SPLIT.svg?branch=master)](https://travis-ci.com/AnthonyChristidis/SPLIT) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/SPLIT)](https://cran.r-project.org/package=SPLIT) [![Downloads](http://cranlogs.r-pkg.org/badges/SPLIT)](https://cran.r-project.org/package=SPLIT)
+[![Build Status](https://travis-ci.org/AnthonyChristidis/splitSelect.svg?branch=master)](https://travis-ci.com/AnthonyChristidis/splitSelect) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/splitSelect)](https://cran.r-project.org/package=splitSelect) [![Downloads](http://cranlogs.r-pkg.org/badges/splitSelect)](https://cran.r-project.org/package=splitSelect)
 
-SPLIT
-=====
+splitSelect
+============
 
-This package provides functions for generating all possible splits of variables into groups, and computing the adaptive SPLIT (best split selection) regression estimator for low-dimensional data.
+This package provides functions for generating all possible splits of variables into groups, and computing the best split selection regression estimator for low-dimensional data.
 
 ------------------------------------------------------------------------
 
 ### Installation
 
-You can install the **stable** version on [R CRAN](https://cran.r-project.org/package=SPLIT).
+You can install the **stable** version on [R CRAN](https://cran.r-project.org/package=splitSelect).
 
 ``` r
-install.packages("SPLIT", dependencies = TRUE)
+install.packages("splitSelect", dependencies = TRUE)
 ```
 
-You can install the **development** version from [GitHub](https://github.com/AnthonyChristidis/SPLIT).
+You can install the **development** version from [GitHub](https://github.com/AnthonyChristidis/splitSelect).
 
 ``` r
 library(devtools)
-devtools::install_github("AnthonyChristidis/SPLIT")
+devtools::install_github("AnthonyChristidis/splitSelect")
 ```
 
 ### Usage
@@ -105,13 +105,13 @@ y.train <- 1 + x.train %*% beta + rnorm(n=n, mean=0, sd=sigma.epsilon)
 x.test <- mvnfast::rmvn(n.test, mu=rep(0,p), sigma=Sigma.rho)
 y.test <- 1 + x.test %*% beta + rnorm(n.test, sd=sigma.epsilon)
 
-# Adaptive SPLIT
+# Best Split Selection for Regression
 system.time(
-  split.out <- cv.SPLIT(x.train, y.train, G=2, use.all=TRUE,
-                        fix.partition=list(matrix(c(2,4,
-                                                    3,3), ncol=2, byrow=TRUE)), fix.split=NULL,
-                        intercept=TRUE, group.model="glmnet", alpha=0, nfolds=10,
-                        parallel=TRUE, cores=nb.cores)
+  split.out <- cv.splitSelect(x.train, y.train, G=2, use.all=TRUE,
+                              fix.partition=list(matrix(c(2,4,
+                                                          3,3), ncol=2, byrow=TRUE)), fix.split=NULL,
+                              intercept=TRUE, group.model="glmnet", alpha=0, nfolds=10,
+                              parallel=TRUE, cores=nb.cores)
 )
 split.predictions <- predict(split.out, newx=x.test)
 mean((split.predictions-y.test)^2)/sigma.epsilon^2

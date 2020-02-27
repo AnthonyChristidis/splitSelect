@@ -1,14 +1,14 @@
 #' 
-#' @title Predictions for cv.SPLIT object
+#' @title Predictions for cv.splitSelect object
 #'
-#' @description \code{predict.cv.SPLIT} returns the prediction for cv.SPLIT for new data.
+#' @description \code{predict.cv.splitSelect} returns the prediction for cv.splitSelect for new data.
 #' 
-#' @param object An object of class cv.SPLIT.
+#' @param object An object of class cv.splitSelect.
 #' @param newx A matrix with the new data.
 #' @param optimal.only A boolean variable (TRUE default) to indicate if only the predictions of the optimal split are returned.
 #' @param ... Additional arguments for compatibility.
 #' 
-#' @return A matrix with the predictions of the \code{cv.SPLIT} object.
+#' @return A matrix with the predictions of the \code{cv.splitSelect} object.
 #' 
 #' @export
 #' 
@@ -45,21 +45,21 @@
 #' 
 #' # Generating the coefficients for a fixed split
 #' \donttest{
-#' split.out <- cv.SPLIT(x.train, y.train, G=2, use.all=TRUE,
-#'                       fix.partition=list(matrix(c(2,2), 
-#'                                                 ncol=2, byrow=TRUE)), 
-#'                       fix.split=NULL,
-#'                       intercept=TRUE, group.model="glmnet", alphas=0)
+#' split.out <- cv.splitSelect(x.train, y.train, G=2, use.all=TRUE,
+#'                             fix.partition=list(matrix(c(2,2), 
+#'                                                ncol=2, byrow=TRUE)), 
+#'                             fix.split=NULL,
+#'                             intercept=TRUE, group.model="glmnet", alphas=0)
 #' predict(split.out, newx=x.test)
 #' }
 #' 
-#' @seealso \code{\link{cv.SPLIT}}
+#' @seealso \code{\link{cv.splitSelect}}
 #' 
-predict.cv.SPLIT <- function(object, newx, optimal.only=TRUE, ...){
+predict.cv.splitSelect <- function(object, newx, optimal.only=TRUE, ...){
   
   # Check input data
-  if(!any(class(object) %in% "cv.SPLIT"))
-    stop("The object should be of class \"cv.SPLIT\"")
+  if(!any(class(object) %in% "cv.splitSelect"))
+    stop("The object should be of class \"cv.splitSelect\"")
   if(is.matrix(newx)){
     if(ncol(newx)!=ncol(object$splits))
       stop("The dimension of newx is invalid.")

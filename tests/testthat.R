@@ -1,4 +1,4 @@
 library(testthat)
-library(SPLIT)
+library(splitSelect)
 
-test_check("SPLIT")
+test_check("splitSelect")

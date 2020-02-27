@@ -1,13 +1,13 @@
 #' 
-#' @title Predictions for SPLIT object
+#' @title Predictions for splitSelect object
 #'
-#' @description \code{predict.SPLIT} returns the prediction for SPLIT for new data.
+#' @description \code{predict.splitSelect} returns the prediction for splitSelect for new data.
 #' 
-#' @param object An object of class SPLIT.
+#' @param object An object of class splitSelect.
 #' @param newx A matrix with the new data.
 #' @param ... Additional arguments for compatibility.
 #' 
-#' @return A matrix with the predictions of the \code{SPLIT} object.
+#' @return A matrix with the predictions of the \code{splitSelect} object.
 #' 
 #' @export
 #' 
@@ -44,19 +44,19 @@
 #' 
 #' # Generating the coefficients for a fixed split
 #' \donttest{
-#' split.out <- SPLIT(x.train, y.train, G=2, use.all=TRUE,
-#'                    fix.partition=list(matrix(c(2,2), ncol=2, byrow=TRUE)), fix.split=NULL,
-#'                    intercept=TRUE, group.model="glmnet", alphas=0)
+#' split.out <- splitSelect(x.train, y.train, G=2, use.all=TRUE,
+#'                          fix.partition=list(matrix(c(2,2), ncol=2, byrow=TRUE)), fix.split=NULL,
+#'                          intercept=TRUE, group.model="glmnet", alphas=0)
 #' predict(split.out, newx=x.test)
 #' }
 #' 
-#' @seealso \code{\link{SPLIT}}
+#' @seealso \code{\link{splitSelect}}
 #' 
-predict.SPLIT <- function(object, newx, ...){
+predict.splitSelect <- function(object, newx, ...){
   
   # Check input data
-  if(!any(class(object) %in% "SPLIT"))
-    stop("The object should be of class \"SPLIT\"")
+  if(!any(class(object) %in% "splitSelect"))
+    stop("The object should be of class \"splitSelect\"")
   if(is.matrix(newx)){
     if(ncol(newx)!=ncol(object$splits))
       stop("The dimension of newx is invalid.")

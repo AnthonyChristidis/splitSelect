@@ -1,9 +1,9 @@
 #' 
 #' @import foreach
 #' 
-#' @title SPLIT Regression Modeling for Low-Dimensional Data - Cross-Validation
+#' @title Split Selection Modeling for Low-Dimensional Data - Cross-Validation
 #'
-#' @description \code{cv.SPLIT} performs the best split selection algorithm with cross-validation
+#' @description \code{cv.splitSelect} performs the best split selection algorithm with cross-validation
 #' 
 #' @param x Design matrix.
 #' @param y Response vector.
@@ -19,11 +19,13 @@
 #' @param parallel Boolean variable to determine if parallelization of the function. Default is FALSE.
 #' @param cores Number of cores for the parallelization for the function.
 #' 
-#' @return An object of class cv.SPLIT.
+#' @return An object of class cv.splitSelect.
 #' 
 #' @export
 #' 
 #' @author Anthony-Alexander Christidis, \email{anthony.christidis@stat.ubc.ca}
+#' 
+#' @seealso \code{\link{coef.cv.splitSelect}}, \code{\link{predict.cv.splitSelect}}
 #' 
 #' @examples
 #' # Setting the parameters
@@ -52,21 +54,21 @@
 #' x.train <- mvnfast::rmvn(30, mu=rep(0,p), sigma=Sigma.r)
 #' y.train <- 1 + x.train %*% beta + rnorm(n=n, mean=0, sd=sigma.epsilon)
 #' 
-#' # Generating the coefficients for a fixed split
+#' # Generating the coefficients for a fixed partition of the variables
 #' \donttest{
-#' split.out <- cv.SPLIT(x.train, y.train, G=2, use.all=TRUE,
-#'                       fix.partition=list(matrix(c(2,2), 
-#'                                                 ncol=2, byrow=TRUE)), 
-#'                       fix.split=NULL,
-#'                       intercept=TRUE, group.model="glmnet", alphas=0, nfolds=10)
+#' split.out <- cv.splitSelect(x.train, y.train, G=2, use.all=TRUE,
+#'                             fix.partition=list(matrix(c(2,2), 
+#'                                                ncol=2, byrow=TRUE)), 
+#'                             fix.split=NULL,
+#'                             intercept=TRUE, group.model="glmnet", alphas=0, nfolds=10)
 #' }
 #'
-cv.SPLIT <- function(x, y, intercept = TRUE,
-                     G, use.all = TRUE,
-                     group.model=c("glmnet", "LS")[1], alphas = 0,
-                     nsample = NULL, fix.partition = NULL, fix.split = NULL,
-                     nfolds = 10,
-                     parallel=FALSE, cores=getOption('mc.cores', 2L)){
+cv.splitSelect <- function(x, y, intercept = TRUE,
+                           G, use.all = TRUE,
+                           group.model=c("glmnet", "LS")[1], alphas = 0,
+                           nsample = NULL, fix.partition = NULL, fix.split = NULL,
+                           nfolds = 10,
+                           parallel=FALSE, cores=getOption('mc.cores', 2L)){
   
   # Check input data
   if (all(!inherits(x, "matrix"), !inherits(x, "data.frame"))) {
@@ -102,11 +104,11 @@ cv.SPLIT <- function(x, y, intercept = TRUE,
   p <- ncol(x) # Storing the number of variables
   
   # Getting the full adaptive SPLIT estimate
-  out.split <- SPLIT(x=x, y=y, intercept=intercept,
-                     G=G, use.all=use.all,
-                     group.model=group.model, alphas=alphas,
-                     nsample=nsample, fix.partition=fix.partition, fix.split=fix.split,
-                     parallel=parallel, cores=cores)
+  out.split <- splitSelect(x=x, y=y, intercept=intercept,
+                           G=G, use.all=use.all,
+                           group.model=group.model, alphas=alphas,
+                           nsample=nsample, fix.partition=fix.partition, fix.split=fix.split,
+                           parallel=parallel, cores=cores)
   
   # Creating the folds
   folds <- caret::createFolds(1:nrow(x), nfolds)
@@ -126,9 +128,9 @@ cv.SPLIT <- function(x, y, intercept = TRUE,
     subset.ind <- NULL
     # Parallel computation for the subsets
     splits.mspes <- foreach::foreach(subset.ind=1:min(cores, length(parallel.id)), 
-                                     .packages=c("SPLIT"), 
-                                     .export=c("SPLIT", "SPLIT_generate_coefficients",
-                                               "construct.SPLIT")) %dopar% { 
+                                     .packages=c("splitSelect"), 
+                                     .export=c("splitSelect", "splitSelect_coef",
+                                               "construct.splitSelect")) %dopar% { 
       
       # Data to store the mspes for the core
       core.splits <- parallel.id[[subset.ind]]
@@ -141,9 +143,9 @@ cv.SPLIT <- function(x, y, intercept = TRUE,
         for(fold.id in 1:nfolds){
           x.train <- x[-folds[[fold.id]],]; x.test <- x[folds[[fold.id]],, drop=FALSE]
           y.train <- y[-folds[[fold.id]]]; y.test <- y[folds[[fold.id]]]
-          fold.split <- SPLIT(x=x.train, y=y.train, intercept=intercept,
-                              G=G, group.model=group.model, alphas = alphas,
-                              fix.split = matrix(out.split$splits[core.splits[split.id],], nrow=1))
+          fold.split <- splitSelect(x=x.train, y=y.train, intercept=intercept,
+                                    G=G, group.model=group.model, alphas = alphas,
+                                    fix.split = matrix(out.split$splits[core.splits[split.id],], nrow=1))
           if(intercept)
             split.pred <- cbind(rep(1, length(y.test)), x.test) %*% fold.split$betas else
               split.pred <- x.test %*% fold.split$betas
@@ -170,9 +172,9 @@ cv.SPLIT <- function(x, y, intercept = TRUE,
       for(fold.id in 1:nfolds){
         x.train <- x[-folds[[fold.id]],]; x.test <- x[folds[[fold.id]],]
         y.train <- y[-folds[[fold.id]]]; y.test <- y[folds[[fold.id]]]
-        fold.split <- SPLIT(x=x.train, y=y.train, intercept=intercept,
-                            G=G, group.model=group.model, alphas = alphas,
-                            fix.split = matrix(out.split$splits[split.id,], nrow=1))
+        fold.split <- splitSelect(x=x.train, y=y.train, intercept=intercept,
+                                  G=G, group.model=group.model, alphas = alphas,
+                                  fix.split = matrix(out.split$splits[split.id,], nrow=1))
         if(intercept)
           split.pred <- cbind(rep(1, length(y.test)), x.test) %*% fold.split$betas else
             split.pred <- x.test %*% fold.split$betas
@@ -184,14 +186,15 @@ cv.SPLIT <- function(x, y, intercept = TRUE,
   }
   
   # Construct the output
-  cv.SPLIT.out <- list(betas=out.split$betas, splits=out.split$splits, 
-                       optimal.split=which.min(splits.mspes), splits.mspes=splits.mspes,
-                       optimal.split.var=out.split$splits[which.min(splits.mspes),])
+  cv.splitSelect.out <- list(betas=out.split$betas, splits=out.split$splits, 
+                             optimal.split=which.min(splits.mspes), splits.mspes=splits.mspes,
+                             optimal.split.var=out.split$splits[which.min(splits.mspes),])
   fn.call <- match.call()
-  cv.SPLIT.out <- construct.cv.SPLIT(object=cv.SPLIT.out, fn_call=fn.call, x=x, y=y, intercept=intercept)
+  cv.splitSelect.out <- construct.cv.splitSelect(object=cv.splitSelect.out, 
+                                                 fn_call=fn.call, x=x, y=y, intercept=intercept)
   
   # Returning the splits and the coefficients
-  return(cv.SPLIT.out)
+  return(cv.splitSelect.out)
 }
 
 

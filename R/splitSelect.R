@@ -1,9 +1,9 @@
 #' 
 #' @import foreach
 #' 
-#' @title SPLIT Regression Modeling for Low-Dimensional Data
+#' @title Best Split Selection Modeling for Low-Dimensional Data
 #'
-#' @description \code{SPLIT} performs the best split selection algorithm.
+#' @description \code{splitSelect} performs the best split selection algorithm.
 #' 
 #' @param x Design matrix.
 #' @param y Response vector.
@@ -20,13 +20,13 @@
 #' @param cores Number of cores for the parallelization for the function.
 #' @param verbose Boolean variable to determine if console output for cross-validation progress is printed (default is TRUE).
 #' 
-#' @return An object of class SPLIT.
+#' @return An object of class splitSelect.
 #' 
 #' @export
 #' 
 #' @author Anthony-Alexander Christidis, \email{anthony.christidis@stat.ubc.ca}
 #' 
-#' @seealso \code{\link{coef.SPLIT}}, \code{\link{predict.SPLIT}}
+#' @seealso \code{\link{coef.splitSelect}}, \code{\link{predict.splitSelect}}
 #' 
 #' @examples
 #' # Setting the parameters
@@ -55,21 +55,21 @@
 #' x.train <- mvnfast::rmvn(30, mu=rep(0,p), sigma=Sigma.r)
 #' y.train <- 1 + x.train %*% beta + rnorm(n=n, mean=0, sd=sigma.epsilon)
 #' 
-#' # Generating the coefficients for a fixed split
+#' # Generating the coefficients for a fixed partition of the variables
 #' \donttest{
-#' split.out <- SPLIT(x.train, y.train, G=2, use.all=TRUE,
-#'                    fix.partition=list(matrix(c(2,2), 
+#' split.out <- splitSelect(x.train, y.train, G=2, use.all=TRUE,
+#'                          fix.partition=list(matrix(c(2,2), 
 #'                                              ncol=2, byrow=TRUE)), 
-#'                    fix.split=NULL,
-#'                    intercept=TRUE, group.model="glmnet", alphas=0)
+#'                          fix.split=NULL,
+#'                          intercept=TRUE, group.model="glmnet", alphas=0)
 #' }
 #'
-SPLIT <- function(x, y, intercept = TRUE,
-                  G, use.all = TRUE,
-                  group.model=c("glmnet", "LS")[1], lambdas=NULL, alphas = 0,
-                  nsample = NULL, fix.partition = NULL, fix.split = NULL,
-                  parallel=FALSE, cores=getOption('mc.cores', 2L),
-                  verbose=TRUE){
+splitSelect <- function(x, y, intercept = TRUE,
+                        G, use.all = TRUE,
+                        group.model=c("glmnet", "LS")[1], lambdas=NULL, alphas = 0,
+                        nsample = NULL, fix.partition = NULL, fix.split = NULL,
+                        parallel=FALSE, cores=getOption('mc.cores', 2L),
+                        verbose=TRUE){
 
   # Check input data
   if (all(!inherits(x, "matrix"), !inherits(x, "data.frame"))) {
@@ -185,8 +185,8 @@ SPLIT <- function(x, y, intercept = TRUE,
     # Hack initialization
     subset.ind <- NULL
     # Parallel computation for the subsets
-    splits.betas <- foreach::foreach(subset.ind=1:min(cores, length(parallel.id)), .packages=c("SPLIT"),
-                                     .export=c("SPLIT", "SPLIT_generate_coefficients")) %dopar% {
+    splits.betas <- foreach::foreach(subset.ind=1:min(cores, length(parallel.id)), .packages=c("splitSelect"),
+                                     .export=c("splitSelect", "splitSelect_coef")) %dopar% {
 
       # Data to store the mspes for the core
       core.splits <- parallel.id[[subset.ind]]
@@ -200,10 +200,10 @@ SPLIT <- function(x, y, intercept = TRUE,
         # Store the current split
         current.split <- final.splits[core.splits[split.id],]
         # Generate the adaptive SPLIT coefficients for current
-        core.splits.betas[, split.id] <- SPLIT_generate_coefficients(x=x, y=y, variables.split=as.vector(current.split),
-                                                                     intercept=intercept,
-                                                                     group.model=group.model, 
-                                                                     lambdas=lambdas, alphas=alphas)
+        core.splits.betas[, split.id] <- splitSelect_coef(x=x, y=y, variables.split=as.vector(current.split),
+                                                          intercept=intercept,
+                                                          group.model=group.model, 
+                                                          lambdas=lambdas, alphas=alphas)
       }
       # Returning the splits.betas
       return(core.splits.betas)
@@ -223,20 +223,20 @@ SPLIT <- function(x, y, intercept = TRUE,
       # Store the current split
       current.split <- final.splits[split.id,,drop=FALSE]
       # Generate the adaptive SPLIT coefficients for current 
-      splits.betas[, split.id] <- SPLIT_generate_coefficients(x=x, y=y, variables.split=as.vector(current.split), 
-                                                              intercept=intercept, 
-                                                              group.model=group.model, 
-                                                              lambdas=lambdas, alphas=alphas)
+      splits.betas[, split.id] <- splitSelect_coef(x=x, y=y, variables.split=as.vector(current.split), 
+                                                   intercept=intercept, 
+                                                   group.model=group.model, 
+                                                   lambdas=lambdas, alphas=alphas)
     }
   }
   
   # Construct the output
-  SPLIT.out <- list(splits=final.splits, betas=splits.betas)
+  splitSelect.out <- list(splits=final.splits, betas=splits.betas)
   fn.call <- match.call()
-  SPLIT.out <- construct.SPLIT(object=SPLIT.out, fn_call=fn.call, x=x, y=y, intercept=intercept)
+  splitSelect.out <- construct.splitSelect(object=splitSelect.out, fn_call=fn.call, x=x, y=y, intercept=intercept)
   
   # Returning the splits and the coefficients
-  return(SPLIT.out)
+  return(splitSelect.out)
 }
 
 

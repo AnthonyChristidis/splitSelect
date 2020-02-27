@@ -1,12 +1,12 @@
 # -----------------------------------------------------------------------
-# Object Construction for SPLIT object
+# Object Construction for splitSelect object
 # 
-# object: the SPLIT object
+# object: the splitSelect object
 # fn_call: the function call
 # x: the design matrix
 # y: the response vector
-construct.SPLIT <- function(object, fn_call, x, y, intercept=TRUE){
-  class(object) <- append("SPLIT", class(object))
+construct.splitSelect <- function(object, fn_call, x, y, intercept=TRUE){
+  class(object) <- append("splitSelect", class(object))
   num_splits <- nrow(object$splits)
   mux_train <- apply(x, 2, mean)
   muy_train <- mean(y)
@@ -17,14 +17,14 @@ construct.SPLIT <- function(object, fn_call, x, y, intercept=TRUE){
 }
 
 # -----------------------------------------------------------------------
-# Object Construction for cv.SPLIT object
+# Object Construction for cv.splitSelect object
 # 
-# object: the cv.SPLIT object
+# object: the cv.splitSelect object
 # fn_call: the function call
 # x: the design matrix
 # y: the response vector
-construct.cv.SPLIT <- function(object, fn_call, x, y, intercept=TRUE){
-  class(object) <- append("cv.SPLIT", class(object))
+construct.cv.splitSelect <- function(object, fn_call, x, y, intercept=TRUE){
+  class(object) <- append("cv.splitSelect", class(object))
   num_splits <- nrow(object$splits)
   mux_train <- apply(x, 2, mean)
   muy_train <- mean(y)

@@ -3,7 +3,7 @@
 # --------------------------------------------------
 
 # Required libraries
-library(SPLIT)
+library(splitSelect)
 
 # Context of test script
 context("Verify generation of all possible splits.")

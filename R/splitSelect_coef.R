@@ -1,7 +1,7 @@
 #' 
-#' @title SPLIT Regression Modeling - Coefficients Generation
+#' @title Split Selection for Regression - Coefficients Generation
 #'
-#' @description \code{SPLIT_generate_coefficients} generates the coefficients for a particular split of variables into groups.
+#' @description \code{splitSelect_coef} generates the coefficients for a particular split of variables into groups.
 #' 
 #' @param x Design matrix.
 #' @param y Response vector.
@@ -48,9 +48,9 @@
 #' y.test <- 1 + x.test %*% beta + rnorm(n.test, sd=sigma.epsilon)
 #' 
 #' # Generating the coefficients for a fixed split
-#' SPLIT_generate_coefficients(x.train, y.train, variables.split=matrix(c(1,2,1,2,1,2), nrow=1))
+#' splitSelect_coef(x.train, y.train, variables.split=matrix(c(1,2,1,2,1,2), nrow=1))
 #' 
-SPLIT_generate_coefficients <- function(x, y, variables.split, 
+splitSelect_coef <- function(x, y, variables.split, 
                                         intercept=TRUE, 
                                         group.model=c("glmnet", "LS")[1], 
                                         lambdas=NULL, alphas=0){

@@ -10,6 +10,7 @@
 #' @param intercept Boolean variable to determine if there is intercept (default is TRUE) or not.
 #' @param G Number of groups into which the variables are split. Can have more than one value.
 #' @param alphas Elastic net mixing parameter. Should be between 0 (default) and 1.
+#' @param family Description of the error distribution and link function to be used for the model. Must be one of "gaussian" or "binomial".
 #' @param group.model Model used for the groups. Must be one of "glmnet" or "LS".
 #' @param nsample Number of sample splits for each value of G. If NULL, then all splits will be considered (unless there is overflow).
 #' @param use.all Boolean variable to determine if all variables must be used (default is TRUE).
@@ -65,11 +66,14 @@
 #'
 cv.splitSelect <- function(x, y, intercept = TRUE,
                            G, use.all = TRUE,
-                           group.model=c("glmnet", "LS")[1], alphas = 0,
+                           family=c("gaussian", "binomial")[1],
+                           group.model=c("glmnet", "LS", "Logistic")[1], alphas = 0,
                            nsample = NULL, fix.partition = NULL, fix.split = NULL,
                            nfolds = 10,
                            parallel=FALSE, cores=getOption('mc.cores', 2L)){
   
+  # Encure numeric entry for response
+  y <- as.numeric(y)
   # Check input data
   if (all(!inherits(x, "matrix"), !inherits(x, "data.frame"))) {
     stop("x should belong to one of the following classes: matrix, data.frame.")
@@ -91,6 +95,9 @@ cv.splitSelect <- function(x, y, intercept = TRUE,
       stop("y and x should have the same number of rows.")
     }
   }
+  if(!(family %in% c("gaussian", "binomial"))){
+    stop("group.model should be one of \"gaussian\" or \"binomial\".")
+  }
   if(!is.null(alphas)){
     if (!inherits(alphas, "numeric")) {
       stop("alphas should be numeric")
@@ -98,14 +105,15 @@ cv.splitSelect <- function(x, y, intercept = TRUE,
       stop("alphas should be a numeric value between 0 and 1.")
     }
   }
-  if(!(group.model %in% c("glmnet", "LS"))){
-    stop("group.model should be one of \"glmnet\" or \"LS\".")
+  if(!(group.model %in% c("glmnet", "LS", "Logistic"))){
+    stop("group.model should be one of \"glmnet\" or \"LS\" or \"Logistic\".")
   }
   p <- ncol(x) # Storing the number of variables
   
   # Getting the full adaptive SPLIT estimate
   out.split <- splitSelect(x=x, y=y, intercept=intercept,
                            G=G, use.all=use.all,
+                           family=family,
                            group.model=group.model, alphas=alphas,
                            nsample=nsample, fix.partition=fix.partition, fix.split=fix.split,
                            parallel=parallel, cores=cores)
@@ -144,11 +152,10 @@ cv.splitSelect <- function(x, y, intercept = TRUE,
           x.train <- x[-folds[[fold.id]],]; x.test <- x[folds[[fold.id]],, drop=FALSE]
           y.train <- y[-folds[[fold.id]]]; y.test <- y[folds[[fold.id]]]
           fold.split <- splitSelect(x=x.train, y=y.train, intercept=intercept,
-                                    G=G, group.model=group.model, alphas = alphas,
+                                    G=G, 
+                                    family=family, group.model=group.model, alphas = alphas,
                                     fix.split = matrix(out.split$splits[core.splits[split.id],], nrow=1))
-          if(intercept)
-            split.pred <- cbind(rep(1, length(y.test)), x.test) %*% fold.split$betas else
-              split.pred <- x.test %*% fold.split$betas
+          split.pred <- predict(fold.split, newx=x.test)
           core.splits.mspes[split.id] <- core.splits.mspes[split.id] + mean((y.test - split.pred)^2)
         }
         # Adjust mspes for number of folds
@@ -173,11 +180,10 @@ cv.splitSelect <- function(x, y, intercept = TRUE,
         x.train <- x[-folds[[fold.id]],]; x.test <- x[folds[[fold.id]],]
         y.train <- y[-folds[[fold.id]]]; y.test <- y[folds[[fold.id]]]
         fold.split <- splitSelect(x=x.train, y=y.train, intercept=intercept,
-                                  G=G, group.model=group.model, alphas = alphas,
+                                  G=G, 
+                                  family=family, group.model=group.model, alphas = alphas,
                                   fix.split = matrix(out.split$splits[split.id,], nrow=1))
-        if(intercept)
-          split.pred <- cbind(rep(1, length(y.test)), x.test) %*% fold.split$betas else
-            split.pred <- x.test %*% fold.split$betas
+        split.pred <- predict(fold.split, newx=x.test)
         splits.mspes[split.id] <- splits.mspes[split.id] + mean((y.test - split.pred)^2)
       }
       # Adjust mspes for number of folds
@@ -191,7 +197,9 @@ cv.splitSelect <- function(x, y, intercept = TRUE,
                              optimal.split.var=out.split$splits[which.min(splits.mspes),])
   fn.call <- match.call()
   cv.splitSelect.out <- construct.cv.splitSelect(object=cv.splitSelect.out, 
-                                                 fn_call=fn.call, x=x, y=y, intercept=intercept)
+                                                 fn_call=fn.call, 
+                                                 x=x, y=y, intercept=intercept, 
+                                                 family=family)
   
   # Returning the splits and the coefficients
   return(cv.splitSelect.out)

@@ -5,14 +5,15 @@
 # fn_call: the function call
 # x: the design matrix
 # y: the response vector
-construct.splitSelect <- function(object, fn_call, x, y, intercept=TRUE){
+# intercept: boolean for intercept or not
+# family: the family for the errors and link function
+construct.splitSelect <- function(object, fn_call, x, y, intercept=TRUE, family=family){
   class(object) <- append("splitSelect", class(object))
-  num_splits <- nrow(object$splits)
-  mux_train <- apply(x, 2, mean)
-  muy_train <- mean(y)
+  object$num_splits <- nrow(object$splits)
   if(intercept)
     object$intercepts <- object$betas[1,]
   object$call <- fn_call
+  object$family <- family
   return(object)
 }
 
@@ -23,14 +24,15 @@ construct.splitSelect <- function(object, fn_call, x, y, intercept=TRUE){
 # fn_call: the function call
 # x: the design matrix
 # y: the response vector
-construct.cv.splitSelect <- function(object, fn_call, x, y, intercept=TRUE){
+# intercept: boolean for intercept or not
+# family: the family for the errors and link function
+construct.cv.splitSelect <- function(object, fn_call, x, y, intercept=TRUE, family=family){
   class(object) <- append("cv.splitSelect", class(object))
-  num_splits <- nrow(object$splits)
-  mux_train <- apply(x, 2, mean)
-  muy_train <- mean(y)
+  object$num_splits <- nrow(object$splits)
   if(intercept)
     object$intercepts <- object$betas[1,]
   object$call <- fn_call
+  object$family <- family
   return(object)
 }
 

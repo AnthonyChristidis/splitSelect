@@ -1,4 +1,6 @@
 #' 
+#' @importFrom stats predict
+#' 
 #' @title Predictions for cv.splitSelect object
 #'
 #' @description \code{predict.cv.splitSelect} returns the prediction for cv.splitSelect for new data.
@@ -72,40 +74,81 @@ predict.cv.splitSelect <- function(object, newx, optimal.only=TRUE, ...){
   
   if(optimal.only){
     
-    # Variable to store the predictions
-    predictions <- numeric(nrow(newx))
-    
-    # Computing the predictions
-    for(newx.id in 1:nrow(newx)){
-      predictions[newx.id] <- newx[newx.id,] %*% object$betas[,object$optimal.split, drop=FALSE]
-    }
-    
-    # Adding the intercepts
-    if(!is.null(object$intercepts))
-      predictions <- predictions + object$intercepts[object$optimal.split]
+    if(object$family=="gaussian"){
+      # Variable to store the predictions
+      predictions <- numeric(nrow(newx))
       
-    # Returning the coefficients
-    return(predictions)
+      # Computing the predictions
+      for(newx.id in 1:nrow(newx)){
+        predictions[newx.id] <- newx[newx.id,] %*% object$betas[,object$optimal.split, drop=FALSE]
+      }
+      
+      # Adding the intercepts
+      if(!is.null(object$intercepts))
+        predictions <- predictions + object$intercepts[object$optimal.split]
+      
+      # Returning the coefficients
+      return(predictions)
+      
+    } else if(object$family=="binomial"){
+      
+      # Variable to store the predictions
+      predictions <- numeric(nrow(newx))
+      
+      # Computing the predictions
+      for(newx.id in 1:nrow(newx)){
+        predictions[newx.id] <- exp(newx[newx.id,] %*% object$betas[,object$optimal.split, drop=FALSE])/
+          (1+exp(newx[newx.id,] %*% object$betas[,object$optimal.split, drop=FALSE]))
+      }
+      
+      # Getting the binary prediction
+      predictions <- round(predictions, 0)
+      
+      # Returning the coefficients
+      return(predictions)
+    }
     
   } else{
     
-    # Matrix to store the predictions
-    predictions <- matrix(nrow=nrow(newx), ncol=nrow(object$splits))
-
-    # Computing the predictions
-    for(newx.id in 1:nrow(newx)){
-      for(split.id in 1:nrow(object$splits)){
-        predictions[newx.id, split.id] <- newx[newx.id,] %*% object$betas[, split.id, drop=FALSE]
+    if(object$family=="gaussian"){
+      
+      # Matrix to store the predictions
+      predictions <- matrix(nrow=nrow(newx), ncol=nrow(object$splits))
+      
+      # Computing the predictions
+      for(newx.id in 1:nrow(newx)){
+        for(split.id in 1:nrow(object$splits)){
+          predictions[newx.id, split.id] <- newx[newx.id,] %*% object$betas[, split.id, drop=FALSE]
+        }
       }
+      
+      # Adding the intercepts
+      if(!is.null(object$intercepts))
+        for(split.id in 1:nrow(object$splits))
+          predictions[,split.id] <- predictions[,split.id] + object$intercepts[split.id]
+        
+        # Returning the coefficients
+        return(predictions)
+      
+    } else if(object$family=="binomial"){
+      
+      # Matrix to store the predictions
+      predictions <- matrix(nrow=nrow(newx), ncol=nrow(object$splits))
+      
+      # Computing the predictions
+      for(newx.id in 1:nrow(newx)){
+        for(split.id in 1:nrow(object$splits)){
+          predictions[newx.id, split.id] <- exp(newx[newx.id,] %*% object$betas[, split.id, drop=FALSE])/
+            (1+exp(newx[newx.id,] %*% object$betas[, split.id, drop=FALSE]))
+        }
+      }
+      
+      # Getting the binary prediction
+      predictions <- round(predictions, 0)
+      
+      # Returning the coefficients
+      return(predictions)
     }
-    
-    # Adding the intercepts
-    if(!is.null(object$intercepts))
-      for(split.id in 1:nrow(object$splits))
-        predictions[,split.id] <- predictions[,split.id] + object$intercepts[split.id]
-    
-    # Returning the coefficients
-    return(predictions)
   }
 }
 

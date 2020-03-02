@@ -10,7 +10,7 @@ Maintainer: Anthony Christidis <anthony.christidis@stat.ubc.ca>
 Description: Functions to generate or sample from all possible splits of features or variables
              into a number of specified groups. Also computes the best split selection estimator 
              (for low-dimensional data) as defined in Christidis, Van Aelst and Zamar (2019) 
-             <arXiv:1812.056781>.
+             <arXiv:1812.05678>.
 License: GPL (>= 2)
 Biarch: true
 Imports: multicool,

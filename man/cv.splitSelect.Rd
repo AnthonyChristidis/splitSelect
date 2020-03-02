@@ -10,7 +10,8 @@ cv.splitSelect(
   intercept = TRUE,
   G,
   use.all = TRUE,
-  group.model = c("glmnet", "LS")[1],
+  family = c("gaussian", "binomial")[1],
+  group.model = c("glmnet", "LS", "Logistic")[1],
   alphas = 0,
   nsample = NULL,
   fix.partition = NULL,
@@ -30,6 +31,8 @@ cv.splitSelect(
 \item{G}{Number of groups into which the variables are split. Can have more than one value.}
 
 \item{use.all}{Boolean variable to determine if all variables must be used (default is TRUE).}
+
+\item{family}{Description of the error distribution and link function to be used for the model. Must be one of "gaussian" or "binomial".}
 
 \item{group.model}{Model used for the groups. Must be one of "glmnet" or "LS".}
 

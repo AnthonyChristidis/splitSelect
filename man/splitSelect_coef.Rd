@@ -9,7 +9,8 @@ splitSelect_coef(
   y,
   variables.split,
   intercept = TRUE,
-  group.model = c("glmnet", "LS")[1],
+  family = c("gaussian", "binomial")[1],
+  group.model = c("glmnet", "LS", "Logistic")[1],
   lambdas = NULL,
   alphas = 0
 )
@@ -22,6 +23,8 @@ splitSelect_coef(
 \item{variables.split}{A vector with the split of the variables into groups as values.}
 
 \item{intercept}{Boolean variable to determine if there is intercept (default is TRUE) or not.}
+
+\item{family}{Description of the error distribution and link function to be used for the model. Must be one of "gaussian" or "binomial".}
 
 \item{group.model}{Model used for the groups. Must be one of "glmnet" or "LS".}
 

@@ -1,4 +1,6 @@
 #' 
+#' @importFrom stats glm
+#' 
 #' @title Split Selection for Regression - Coefficients Generation
 #'
 #' @description \code{splitSelect_coef} generates the coefficients for a particular split of variables into groups.
@@ -7,6 +9,7 @@
 #' @param y Response vector.
 #' @param variables.split A vector with the split of the variables into groups as values.
 #' @param intercept Boolean variable to determine if there is intercept (default is TRUE) or not.
+#' @param family Description of the error distribution and link function to be used for the model. Must be one of "gaussian" or "binomial".
 #' @param group.model Model used for the groups. Must be one of "glmnet" or "LS".
 #' @param lambdas The shinkrage parameters for the "glmnet" regularization. If NULL (default), optimal values are chosen.
 #' @param alphas Elastic net mixing parameter. Should be between 0 (default) and 1.
@@ -52,9 +55,14 @@
 #' 
 splitSelect_coef <- function(x, y, variables.split, 
                              intercept=TRUE, 
-                             group.model=c("glmnet", "LS")[1], 
+                             family=c("gaussian", "binomial")[1],
+                             group.model=c("glmnet", "LS", "Logistic")[1], 
                              lambdas=NULL, alphas=0){
   
+  # Check input for the family (link)
+  if(!(family %in% c("gaussian", "binomial"))){
+    stop("group.model should be one of \"gaussian\" or \"binomial\".")
+  }
   # Check input for lambdas and alphas
   if(!is.null(lambdas)){
     if(length(lambdas)!=length(unique(variables.split)))
@@ -81,10 +89,11 @@ splitSelect_coef <- function(x, y, variables.split,
   # Centering the response
   y.c <- scale(y, center=TRUE, scale=FALSE)
   
+  
   if(group.model=="LS"){
     
     if(intercept){
-    
+      
       for(g in G){
         x.g <- x.c[,variables.split==g, drop=FALSE]
         beta.g <- solve(t(x.g)%*%x.g)%*%t(x.g)%*%y.c
@@ -109,6 +118,34 @@ splitSelect_coef <- function(x, y, variables.split,
     # Returning the adaptive SPLIT estimate
     return(final.beta)
     
+  } else if(group.model=="Logistic"){
+    
+    if(intercept){
+    
+      # for(g in G){
+      #   x.g <- x.c[,variables.split==g, drop=FALSE]
+      #   beta.g <- solve(t(x.g)%*%x.g)%*%t(x.g)%*%y.c
+      #   final.beta[variables.split==g] <- beta.g
+      # }
+      # # Adjusting for the number of groups
+      # final.beta <- final.beta/length(G)
+      # # Computing the intercept
+      # split.intercept <- as.numeric(mean(y)) - apply(x, 2, mean)%*%final.beta
+      # final.beta <- c(split.intercept, final.beta)
+    } else{
+      
+      for(g in G){
+        x.g <- x[,variables.split==g, drop=FALSE]
+        beta.g <- glm(y ~ x.g, family=family)
+        final.beta[variables.split==g] <- beta.g
+      }
+      # Adjusting for the number of groups
+      final.beta <- final.beta/length(G)
+    }
+    
+    # Returning the adaptive SPLIT estimate
+    return(final.beta)
+    
   } else if(group.model=="glmnet"){
 
     if(is.null(lambdas)){
@@ -117,11 +154,15 @@ splitSelect_coef <- function(x, y, variables.split,
       for(g in G){
         if(sum(variables.split==g)==1){
           x.g <- cbind(0, x[, variables.split==g, drop=FALSE])
-          beta.g <- glmnet::cv.glmnet(x.g, y, alpha=alphas[g], intercept=intercept, grouped=FALSE)
+          beta.g <- glmnet::cv.glmnet(x.g, y, alpha=alphas[g], 
+                                      intercept=intercept, grouped=FALSE, 
+                                      family=family)
           beta.g <- as.numeric(coef(beta.g, s="lambda.min"))[-(1:2)]
         } else{
           x.g <- x[, variables.split==g, drop=FALSE]
-          beta.g <- glmnet::cv.glmnet(x.g, y, alpha=alphas[g], intercept=intercept, grouped=FALSE)
+          beta.g <- glmnet::cv.glmnet(x.g, y, alpha=alphas[g], 
+                                      intercept=intercept, grouped=FALSE, 
+                                      family=family)
           beta.g <- as.numeric(coef(beta.g, s="lambda.min"))[-1]
         }
         final.beta[variables.split==g] <- beta.g
@@ -131,11 +172,15 @@ splitSelect_coef <- function(x, y, variables.split,
       for(g in G){
         if(sum(variables.split==g)==1){
           x.g <- cbind(0, x[, variables.split==g, drop=FALSE])
-          beta.g <- glmnet::glmnet(x.g, y, alpha=alphas[g], lambda=lambdas[g], intercept=intercept, grouped=FALSE)
+          beta.g <- glmnet::glmnet(x.g, y, alpha=alphas[g], lambda=lambdas[g], 
+                                   intercept=intercept, grouped=FALSE, 
+                                   family=family)
           beta.g <- as.numeric(coef(beta.g))[-(1:2)]
         } else{
           x.g <- x[, variables.split==g, drop=FALSE]
-          beta.g <- glmnet::glmnet(x.g, y.c, alpha=alphas[g], lambda=lambdas[g], intercept=intercept, grouped=FALSE)
+          beta.g <- glmnet::glmnet(x.g, y.c, alpha=alphas[g], lambda=lambdas[g], 
+                                   intercept=intercept, grouped=FALSE, 
+                                   family=family)
           beta.g <- as.numeric(coef(beta.g))[-1]
         }
         final.beta[variables.split==g] <- beta.g

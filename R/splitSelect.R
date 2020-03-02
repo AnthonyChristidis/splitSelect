@@ -10,6 +10,7 @@
 #' @param intercept Boolean variable to determine if there is intercept (default is TRUE) or not.
 #' @param G Number of groups into which the variables are split. Can have more than one value.
 #' @param group.model Model used for the groups. Must be one of "glmnet" or "LS".
+#' @param family Description of the error distribution and link function to be used for the model. Must be one of "gaussian" or "binomial".
 #' @param lambdas The shinkrage parameters for the "glmnet" regularization. If NULL (default), optimal values are chosen.
 #' @param alphas Elastic net mixing parameter. Should be between 0 (default) and 1.
 #' @param nsample Number of sample splits for each value of G. If NULL, then all splits will be considered (unless there is overflow).
@@ -66,11 +67,14 @@
 #'
 splitSelect <- function(x, y, intercept = TRUE,
                         G, use.all = TRUE,
-                        group.model=c("glmnet", "LS")[1], lambdas=NULL, alphas = 0,
+                        family=c("gaussian", "binomial")[1],
+                        group.model=c("glmnet", "LS", "Logistic")[1], lambdas=NULL, alphas = 0,
                         nsample = NULL, fix.partition = NULL, fix.split = NULL,
                         parallel=FALSE, cores=getOption('mc.cores', 2L),
                         verbose=TRUE){
 
+  # Encure numeric entry for response
+  y <- as.numeric(y)
   # Check input data
   if (all(!inherits(x, "matrix"), !inherits(x, "data.frame"))) {
     stop("x should belong to one of the following classes: matrix, data.frame.")
@@ -91,6 +95,9 @@ splitSelect <- function(x, y, intercept = TRUE,
     if (len_y != nrow(x)) {
       stop("y and x should have the same number of rows.")
     }
+  }
+  if(!(family %in% c("gaussian", "binomial"))){
+    stop("group.model should be one of \"gaussian\" or \"binomial\".")
   }
   if(!is.null(alphas)){
     if (!inherits(alphas, "numeric")) {
@@ -125,8 +132,8 @@ splitSelect <- function(x, y, intercept = TRUE,
       if(!is.null(fix.split) && anyNA(fix.split))
         stop("fix.split contains NA values. Set use.all to FALSE if needed.")
   }
-  if(!(group.model %in% c("glmnet", "LS"))){
-    stop("group.model should be one of \"glmnet\" or \"LS\".")
+  if(!(group.model %in% c("glmnet", "LS", "Logistic"))){
+    stop("group.model should be one of \"glmnet\" or \"LS\" or \"Logistic\".")
   }
 
   # Determining if random splits must be generated (total splits may be too large)
@@ -202,6 +209,7 @@ splitSelect <- function(x, y, intercept = TRUE,
         # Generate the adaptive SPLIT coefficients for current
         core.splits.betas[, split.id] <- splitSelect_coef(x=x, y=y, variables.split=as.vector(current.split),
                                                           intercept=intercept,
+                                                          family=family,
                                                           group.model=group.model, 
                                                           lambdas=lambdas, alphas=alphas)
       }
@@ -225,6 +233,7 @@ splitSelect <- function(x, y, intercept = TRUE,
       # Generate the adaptive SPLIT coefficients for current 
       splits.betas[, split.id] <- splitSelect_coef(x=x, y=y, variables.split=as.vector(current.split), 
                                                    intercept=intercept, 
+                                                   family=family,
                                                    group.model=group.model, 
                                                    lambdas=lambdas, alphas=alphas)
     }
@@ -233,7 +242,10 @@ splitSelect <- function(x, y, intercept = TRUE,
   # Construct the output
   splitSelect.out <- list(splits=final.splits, betas=splits.betas)
   fn.call <- match.call()
-  splitSelect.out <- construct.splitSelect(object=splitSelect.out, fn_call=fn.call, x=x, y=y, intercept=intercept)
+  splitSelect.out <- construct.splitSelect(object=splitSelect.out, 
+                                           fn_call=fn.call, 
+                                           x=x, y=y, intercept=intercept, 
+                                           family=family)
   
   # Returning the splits and the coefficients
   return(splitSelect.out)

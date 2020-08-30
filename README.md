@@ -28,6 +28,9 @@ devtools::install_github("AnthonyChristidis/splitSelect")
 Here is some code to generate all possible splits of variables into groups.
 
 ``` r
+# Loading library
+library(splitSelect)
+
 # Setting number of variables and groups
 p <- 8
 G <- 4

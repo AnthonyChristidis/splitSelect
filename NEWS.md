@@ -5,3 +5,5 @@
 * Allow for more than one value of the shrinkage parameters.
 * Fix dependency to mvnfast.
 
+# splitSelect 1.0.2
+* Remove unnecessary imports.

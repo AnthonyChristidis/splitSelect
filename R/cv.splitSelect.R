@@ -119,7 +119,7 @@ cv.splitSelect <- function(x, y, intercept = TRUE,
                            parallel=parallel, cores=cores)
   
   # Creating the folds
-  folds <- caret::createFolds(1:nrow(x), nfolds)
+  folds <- create_folds(nrow(x), nfolds)
 
   if(parallel){
       

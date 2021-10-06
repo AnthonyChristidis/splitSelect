@@ -1,5 +1,5 @@
 #' 
-#' @importFrom stats coef
+#' @importFrom stats coef rbinom
 #' @importFrom utils combn
 #' 
 #' @title Generate Splits Partitions Possibilities

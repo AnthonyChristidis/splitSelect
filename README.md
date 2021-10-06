@@ -1,5 +1,5 @@
 
-[![Build Status](https://travis-ci.com/AnthonyChristidis/splitSelect.svg?branch=master)](https://travis-ci.com/AnthonyChristidis/splitSelect) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/splitSelect)](https://cran.r-project.org/package=splitSelect) [![Downloads](http://cranlogs.r-pkg.org/badges/splitSelect)](https://cran.r-project.org/package=splitSelect)
+[![Build Status](https://app.travis-ci.com/AnthonyChristidis/splitSelect.svg?branch=master)](https://app.travis-ci.com/AnthonyChristidis/splitSelect) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/splitSelect)](https://cran.r-project.org/package=splitSelect) [![Downloads](http://cranlogs.r-pkg.org/badges/splitSelect)](https://cran.r-project.org/package=splitSelect)
 
 splitSelect
 ============

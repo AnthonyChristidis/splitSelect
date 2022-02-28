@@ -7,3 +7,6 @@
 
 # splitSelect 1.0.2
 * Remove unnecessary imports.
+
+# splitSelect 1.0.3
+* Fix coefficients for logistic case.

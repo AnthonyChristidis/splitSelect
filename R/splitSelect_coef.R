@@ -136,7 +136,7 @@ splitSelect_coef <- function(x, y, variables.split,
       
       for(g in G){
         x.g <- x[,variables.split==g, drop=FALSE]
-        beta.g <- glm(y ~ x.g, family=family)
+        beta.g <- glm(y ~ x.g, family=family)$coef
         final.beta[variables.split==g] <- beta.g
       }
       # Adjusting for the number of groups
